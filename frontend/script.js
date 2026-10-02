@@ -1,59 +1,69 @@
-function analyzeMessage() {
+const messageInput = document.getElementById("message");
+const analyzeButton = document.getElementById("analyzeBtn");
 
-    let message = document.getElementById("message").value.toLowerCase();
+analyzeButton.addEventListener("click", async () => {
 
-    if (message.trim() === "") {
-        document.getElementById("result").innerHTML =
-            "⚠️ Please enter a message.";
-        return;
-    }
+```
+const message = messageInput.value.trim();
 
-    let suspiciousWords = [
-        "urgent",
-        "click",
-        "otp",
-        "password",
-        "won",
-        "prize",
-        "lottery",
-        "verify",
-        "bank",
-        "account",
-        "claim",
-        "free"
-    ];
-
-    let foundWords = [];
-
-    for (let word of suspiciousWords) {
-        if (message.includes(word)) {
-            foundWords.push(word);
-        }
-    }
-
-    if (foundWords.length >= 3) {
-
-        document.getElementById("result").innerHTML = `
-            <h3>🚨 High Risk — Possible Phishing</h3>
-            <p><b>Suspicious words detected:</b></p>
-            <p>${foundWords.join(", ")}</p>
-            <p>🛡️ Do not click links or share OTPs, passwords, or banking information.</p>
-        `;
-
-    } else if (foundWords.length > 0) {
-
-        document.getElementById("result").innerHTML = `
-            <h3>⚠️ Be Careful</h3>
-            <p>Some suspicious signs were detected.</p>
-            <p><b>Detected:</b> ${foundWords.join(", ")}</p>
-            <p>🔍 Verify the sender before taking any action.</p>
-        `;
-
-    } else {
-
-        document.getElementById("result").innerHTML = `
-            <h3>🟢 No obvious phishing signs detected</h3>
-            <p>However, always verify unexpected messages before clicking links or sharing personal information.</p>
-        `;
-    }
+if (!message) {
+    alert("Please enter a message to analyze.");
+    return;
 }
+
+analyzeButton.disabled = true;
+analyzeButton.textContent = "Analyzing...";
+
+try {
+
+    const response = await fetch(
+        "https://cybersafeai.onrender.com/analyze",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                message: message
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.error || "Something went wrong."
+        );
+    }
+
+    document.getElementById("threat").textContent =
+        data.threat || "Unknown";
+
+    document.getElementById("type").textContent =
+        data.type || "Unknown";
+
+    document.getElementById("explanation").textContent =
+        data.explanation || "No explanation available.";
+
+    document.getElementById("advice").textContent =
+        data.advice || "No advice available.";
+
+} catch (error) {
+
+    console.error(error);
+
+    alert(
+        "Unable to connect to CyberSafeAI. Please try again."
+    );
+
+} finally {
+
+    analyzeButton.disabled = false;
+    analyzeButton.textContent = "Analyze Message";
+}
+```
+
+});
