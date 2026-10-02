@@ -1,0 +1,618 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CyberShield AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0b1020, #111936, #17112d);
+            color: white;
+        }
+
+        /* NAVBAR */
+
+        nav {
+            width: 100%;
+            padding: 22px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .logo span {
+            color: #8b7cff;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #b8bfd8;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            background: #35e58c;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #35e58c;
+        }
+
+        /* HERO */
+
+        .hero {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 75px 20px 40px;
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 30px;
+            background: rgba(139,124,255,0.12);
+            border: 1px solid rgba(139,124,255,0.3);
+            color: #b8adff;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: clamp(42px, 7vw, 72px);
+            line-height: 1.05;
+            margin-bottom: 20px;
+        }
+
+        h1 span {
+            color: #8b7cff;
+        }
+
+        .subtitle {
+            max-width: 650px;
+            margin: auto;
+            color: #aeb6d0;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        /* ANALYZER */
+
+        .container {
+            width: min(900px, 92%);
+            margin: 30px auto 70px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 22px;
+            padding: 28px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.3);
+        }
+
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            color: #9da6c0;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 180px;
+            resize: vertical;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 15px;
+            padding: 18px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        textarea::placeholder {
+            color: #68718d;
+        }
+
+        textarea:focus {
+            border-color: #8b7cff;
+            box-shadow: 0 0 0 3px rgba(139,124,255,0.1);
+        }
+
+        .analyze-btn {
+            width: 100%;
+            margin-top: 16px;
+            padding: 16px;
+            border: none;
+            border-radius: 13px;
+            background: #8b7cff;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139,124,255,0.3);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* LOADING */
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 25px;
+            color: #aaaed0;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255,255,255,0.15);
+            border-top-color: #8b7cff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* RESULT */
+
+        .result {
+            display: none;
+            margin-top: 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 25px;
+        }
+
+        .result-heading {
+            font-size: 21px;
+            margin-bottom: 18px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result-box {
+            background: rgba(0,0,0,0.2);
+            padding: 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .label {
+            display: block;
+            color: #858eaa;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .explanation,
+        .advice {
+            background: rgba(0,0,0,0.2);
+            padding: 18px;
+            border-radius: 14px;
+            margin-top: 15px;
+            border: 1px solid rgba(255,255,255,0.08);
+            line-height: 1.6;
+            color: #d5d9e8;
+        }
+
+        .advice {
+            border-left: 4px solid #35e58c;
+        }
+
+        /* FOOTER */
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #69728e;
+            font-size: 13px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 600px) {
+
+            nav {
+                padding: 18px 5%;
+            }
+
+            .status {
+                display: none;
+            }
+
+            .hero {
+                padding-top: 50px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 45px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav>
+        <div class="logo">
+            🛡️ Cyber<span>Shield</span> AI
+        </div>
+
+        <div class="status">
+            <div class="status-dot"></div>
+            AI Protection Online
+        </div>
+    </nav>
+
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="badge">
+            AI-Powered Cybersecurity Assistant
+        </div>
+
+        <h1>
+            Stay Safe.<br>
+            Stay <span>CyberSmart.</span>
+        </h1>
+
+        <p class="subtitle">
+            Analyze suspicious messages and detect potential
+            phishing, scams, social engineering and other
+            cybersecurity threats with AI.
+        </p>
+
+    </section>
+
+
+    <!-- ANALYZER -->
+
+    <main class="container">
+
+        <div class="card">
+
+            <div class="card-title">
+                🔍 Analyze a Message
+            </div>
+
+            <div class="card-description">
+                Paste a suspicious SMS, email, WhatsApp message,
+                or other text below.
+            </div>
+
+            <textarea
+                id="message"
+                placeholder="Example: Congratulations! You have won ₹50,000. Click this link immediately to claim your prize..."
+            ></textarea>
+
+            <button
+                class="analyze-btn"
+                id="analyzeButton"
+                onclick="analyzeMessage()"
+            >
+                Analyze Message
+            </button>
+
+
+            <!-- LOADING -->
+
+            <div class="loading" id="loading">
+
+                <div class="spinner"></div>
+
+                <div>
+                    CyberShield AI is analyzing the message...
+                </div>
+
+            </div>
+
+
+            <!-- RESULT -->
+
+            <div class="result" id="result">
+
+                <div class="result-heading">
+                    🛡️ Security Analysis
+                </div>
+
+                <div class="result-grid">
+
+                    <div class="result-box">
+                        <span class="label">
+                            Threat Level
+                        </span>
+
+                        <div
+                            class="value"
+                            id="threat"
+                        >
+                            -
+                        </div>
+                    </div>
+
+
+                    <div class="result-box">
+                        <span class="label">
+                            Threat Type
+                        </span>
+
+                        <div
+                            class="value"
+                            id="type"
+                        >
+                            -
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="explanation">
+
+                    <span class="label">
+                        Explanation
+                    </span>
+
+                    <div id="explanation">
+                        -
+                    </div>
+
+                </div>
+
+
+                <div class="advice">
+
+                    <span class="label">
+                        Safety Advice
+                    </span>
+
+                    <div id="advice">
+                        -
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <footer>
+        CyberShield AI • Built for safer digital communication 🛡️
+    </footer>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+        async function analyzeMessage() {
+
+            const messageInput =
+                document.getElementById("message");
+
+            const button =
+                document.getElementById("analyzeButton");
+
+            const loading =
+                document.getElementById("loading");
+
+            const result =
+                document.getElementById("result");
+
+            const message =
+                messageInput.value.trim();
+
+
+            // Check empty message
+
+            if (!message) {
+
+                alert("Please enter a message to analyze.");
+
+                messageInput.focus();
+
+                return;
+            }
+
+
+            // Show loading
+
+            button.disabled = true;
+
+            button.innerText = "Analyzing...";
+
+            loading.style.display = "block";
+
+            result.style.display = "none";
+
+
+            try {
+
+                // Send message to CyberShield backend
+
+                const response = await fetch(
+                    "http://localhost:3000/analyze",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            message: message
+                        })
+                    }
+                );
+
+
+                // Check server response
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Server returned error: " +
+                        response.status
+                    );
+                }
+
+
+                // Convert response to JSON
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "CyberShield AI Result:",
+                    data
+                );
+
+
+                // Display result
+
+                document.getElementById("threat").innerText =
+                    data.threat || "Unknown";
+
+                document.getElementById("type").innerText =
+                    data.type || "Unknown";
+
+                document.getElementById("explanation").innerText =
+                    data.explanation || "No explanation available.";
+
+                document.getElementById("advice").innerText =
+                    data.advice || "Please stay cautious online.";
+
+
+                // Show result
+
+                result.style.display = "block";
+
+
+                // Scroll to result
+
+                result.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "CyberShield Error:",
+                    error
+                );
+
+                alert(
+                    "Could not connect to CyberShield AI.\n\n" +
+                    "Make sure your backend is running on port 3000."
+                );
+
+            }
+
+
+            finally {
+
+                loading.style.display = "none";
+
+                button.disabled = false;
+
+                button.innerText =
+                    "Analyze Message";
+
+            }
+
+        }
+
+
+        // Allow Ctrl + Enter to analyze
+
+        document
+            .getElementById("message")
+            .addEventListener("keydown", function(event) {
+
+                if (event.ctrlKey && event.key === "Enter") {
+
+                    analyzeMessage();
+
+                }
+
+            });
+
+    </script>
+
+</body>
+</html>
+```
