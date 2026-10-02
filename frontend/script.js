@@ -1,69 +1,54 @@
 const messageInput = document.getElementById("message");
 const analyzeButton = document.getElementById("analyzeBtn");
 
-analyzeButton.addEventListener("click", async () => {
+analyzeButton.addEventListener("click", async function () {
+    const message = messageInput.value.trim();
 
-```
-const message = messageInput.value.trim();
-
-if (!message) {
-    alert("Please enter a message to analyze.");
-    return;
-}
-
-analyzeButton.disabled = true;
-analyzeButton.textContent = "Analyzing...";
-
-try {
-
-    const response = await fetch(
-        "https://cybersafeai.onrender.com/analyze",
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                message: message
-            })
-        }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(
-            data.error || "Something went wrong."
-        );
+    if (!message) {
+        alert("Please enter a message.");
+        return;
     }
 
-    document.getElementById("threat").textContent =
-        data.threat || "Unknown";
+    analyzeButton.disabled = true;
+    analyzeButton.textContent = "Analyzing...";
 
-    document.getElementById("type").textContent =
-        data.type || "Unknown";
+    try {
+        const response = await fetch(
+            "https://cybersafeai.onrender.com/analyze",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: message
+                })
+            }
+        );
 
-    document.getElementById("explanation").textContent =
-        data.explanation || "No explanation available.";
+        const data = await response.json();
 
-    document.getElementById("advice").textContent =
-        data.advice || "No advice available.";
+        if (!response.ok) {
+            throw new Error(data.error || "Server error");
+        }
 
-} catch (error) {
+        document.getElementById("threat").textContent =
+            data.threat || "Unknown";
 
-    console.error(error);
+        document.getElementById("type").textContent =
+            data.type || "Unknown";
 
-    alert(
-        "Unable to connect to CyberSafeAI. Please try again."
-    );
+        document.getElementById("explanation").textContent =
+            data.explanation || "No explanation available.";
 
-} finally {
+        document.getElementById("advice").textContent =
+            data.advice || "No advice available.";
+
+    } catch (error) {
+        console.error("CyberSafeAI Error:", error);
+        alert("Unable to connect to CyberSafeAI.");
+    }
 
     analyzeButton.disabled = false;
     analyzeButton.textContent = "Analyze Message";
-}
-```
-
 });
